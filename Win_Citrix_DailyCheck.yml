@@ -24,7 +24,7 @@ tasks:
   - name: Set status
     set_facts:
       service_summary: "All servers working correctly"
-
+      
 
   - name: Create temp folder
     file:
