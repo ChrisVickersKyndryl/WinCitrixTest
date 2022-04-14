@@ -1,1 +1,83 @@
+---
+  - name: Set facts to empty
+    set_facts:
+      status_services:
+      status_unregistered_hosts:
 
+
+  - name: Query using powershell
+    win_shell: |
+      Get-Service -Displayname
+
+      "Citrix Configuration Replication",
+      "Citrix Credential Wallet",
+      "Citrix Default Domain Services",
+      "Citrix Peer Resolution Service",
+      "Citrix Service Monitor",
+      "Citrix Subscriptions Store",
+      "Citrix Telemetry Service"
+    register: status_of_services
+
+
+  - name: Write status to temporary file
+    lineinfile:
+      path: "/tmp/MyTest/MyFile.txt"
+      line: |
+        "Service Status for host '{{ ansible_hostname }}'"
+        "{{ status_of_services.stdout }}"
+        ""
+        ""
+      insertafter: EOF
+    delegate_to: 127.0.0.1
+
+
+  - name: Check for stopped services
+    set_facts:
+      status_summary: "Error found"
+    # Change below to set the status values that will flag a problem
+    when: |
+      status_of_services is search("stopped") or
+      status_of_services is search("stopped")
+
+
+  - name: Check for unregistered hosts
+    win_shell: |
+      If ( (Get-PSSnapin -Name Citrix.Broker.Admin.* -ErrorAction SilentlyContinue) -eq $null )
+      {
+          Try {
+              Add-PSSnapin Citrix.Broker.Admin.* | Out-Null
+          } Catch {
+              Write-Host "Unable to load Citrix Snapin. It is not possible to continue."
+              Exit 1
+          }
+      }
+      $VMs = Get-BrokerDesktop -RegistrationState Unregistered -PowerState On
+      If ($VMs) {
+          Write-Host "Powered-on Unregistered VMs:"
+          ForEach ($vm in $VMs) {
+              $vm.MachineName
+          }
+      } Else {
+          Write-Host "All the powered-on VMs are registered succcessfully!"
+      }
+    register: unregistered_hosts_output
+
+
+  - name: Check for unregistered machines
+    set_facts:
+      status_summary: "Error found"
+    # Change below to set the status values that will flag a problem
+    when: |
+      "All the powered-on VMs are registered succcessfully!" not in unregistered_hosts_output.stdout
+
+
+  - name: Write status to temporary file
+    lineinfile:
+      path: "/tmp/MyTest/MyFile.txt"
+      line: |
+        "Unregistered hosts for '{{ ansible_hostname }}'"
+        "{{ unregistered_hosts_output.stdout }}"
+        ""
+        ""
+      insertafter: EOF
+    delegate_to: 127.0.0.1
