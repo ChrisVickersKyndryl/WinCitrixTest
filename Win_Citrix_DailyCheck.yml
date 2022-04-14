@@ -15,8 +15,8 @@
 # Create 3 server lists. These can be overridden in the template variables
 
 vars:
-  servers_dcc: []
   servers_storefront: []
+  servers_dcc: []
   servers_pvs: []
 
 tasks:
@@ -43,16 +43,16 @@ tasks:
 
 
   - name: Check store_front
-    include_tasks: tasks/StoreFront.yml
+    include_tasks: tasks/Check_StoreFront.yml
     loop: "{{ servers_storefront }}"
 
    - name: check ddc
-     include_tasks: - generic.yml
-     loop: "{{ dcc_servers }}"
+     include_tasks: tasks/Check_DDC.yml
+     loop: "{{ servers_dcc }}"
 
    - name: check pvs
-     include_tasks: - generic.yml
-     loop: "{{ dcc_servers }}"
+     include_tasks: tasks/Check_PVC.yml
+     loop: "{{ servers_pvs }}"
 
 
   - name: read information from file
