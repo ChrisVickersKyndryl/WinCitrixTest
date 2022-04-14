@@ -21,11 +21,12 @@ vars:
 
 tasks:
 
+  # Set a default value for the summary. Any changes will change it from this. 
   - name: Set status
     set_facts:
       service_summary: "All servers working correctly"
       
-
+  # Create a temp folder to store all the information
   - name: Create temp folder
     file:
       path: /tmp/MyTest
@@ -33,7 +34,7 @@ tasks:
     delegate_to: 127.0.0.1
     run_once: true
 
-
+  # Create a temporary file to store the text information from all tests
   - name: Creating an empty file
     file:
       path: "/tmp/MyTest/MyFile.txt"
@@ -41,31 +42,39 @@ tasks:
     delegate_to: 127.0.0.1
     run_once: true
 
-
+  # Carryout custom checks only on servers in the storefront list
   - name: Check store_front
     include_tasks: tasks/Check_StoreFront.yml
     loop: "{{ servers_storefront }}"
 
+   # Carryout custom checks only on servers in the DDC list
    - name: check ddc
      include_tasks: tasks/Check_DDC.yml
      loop: "{{ servers_dcc }}"
 
+   # Carryout custom checks only on servers in the storefront list
    - name: check pvs
      include_tasks: tasks/Check_PVC.yml
      loop: "{{ servers_pvs }}"
 
-
+  # Read all the information from the temporary file and copy it into a fact
   - name: read information from file
     set_fact:
       file_text: "{{ lookup('file', '/tmp/MyTest/MyFile.txt') }}"
     run_once: true
     delegate_to: 127.0.0.1
 
+  # Print output to Ansible tower
+  - name: Print version
+    debug:
+      msg: 
+        - "Service summary: {{ service_summary }}"
+        - "Status: {{ file_text }}"
 
   # Send email using SMTP
   - name: email information
     mail:
-      host: smtprelay.energyaustralia.com.au
+      host: 
       port: 25
       to: Chris Vickers <john.smith@example.com>
       subject: "Server status '{{ service_summary }}'"
