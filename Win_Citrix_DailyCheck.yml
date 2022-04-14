@@ -1,74 +1,74 @@
----
-- name: Windows citrix service checker
-  hosts: all
+# There are 3 different server types.
+# Each running different services
+# Each of the 3 has different service states
 
-  tasks:
+#servers_dcc:
+#  - 
+#  -
+#servers_storefront:
+#  -
+#  -
+#servers_pvs:
+#  -
+#  -
 
-    - name: Read write text file test
-      block:
+# Create 3 server lists. These can be overridden in the template variables
 
-        - name: Create Directory
-          file:
-            path: /tmp/MyTest
-            state: directory
-          delegate_to: 127.0.0.1
-          run_once: true
-          
-        - name: Creating an empty file
-          file:
-            path: "/tmp/MyTest/MyFile.txt"
-            state: touch
-          delegate_to: 127.0.0.1
-          run_once: true
-       
-        - win_shell: Get-Service
-          register: stuff
-       
-        - name: Write debug message
-          debug:
-            msg: |
-              "XXX Host {{ ansible_hostname }}"
-              "{{ stuff.stdout }}"
-              ""
-              ""
-       
-        - name: Copy services to file
-          lineinfile:
-            path: "/tmp/MyTest/MyFile.txt"
-            line: |
-              "XXX Host {{ ansible_hostname }}"
-              "{{ stuff.stdout }}"
-              ""
-              ""
-            insertafter: EOF
-          delegate_to: 127.0.0.1
-          
-    - name: Read write text file test
-      block:
-        - name: Read file to fact
-          set_fact:
-            file_text: "{{ lookup('file', '/tmp/MyTest/MyFile.txt') }}"
-          run_once: true
-          delegate_to: 127.0.0.1
-        
-        - name: Show content from file
-          debug:
-            msg: |
-              "{{ file_text | replace('\\r\\n','\\\r\\\n') }}"
-          # Only run on the last host
-          when: inventory_hostname != ansible_play_hosts_all[-1]
-          # https://devops.stackexchange.com/questions/6058/can-i-check-whether-ansible-is-on-last-batch-of-rolling-update-serial-25
-          run_once: true
+vars:
+  servers_dcc: []
+  servers_storefront: []
+  servers_pvs: []
 
-        # Sending an e-mail using Gmail SMTP servers
-        - mail:
-          host: smtp.gmail.com
-          port: 587
-          #username: username@gmail.com
-          #password: mysecret
-          to: Chris Vickers <john.smith@example.com>
-          subject: Ansible-report
-          body: '{{ file_text }}'
-          delegate_to: localhost
-          run_once: true
+tasks:
 
+  - name: Set status
+    set_facts:
+      service_summary: "All servers working correctly"
+
+
+  - name: Create temp folder
+    file:
+      path: /tmp/MyTest
+      state: directory
+    delegate_to: 127.0.0.1
+    run_once: true
+
+
+  - name: Creating an empty file
+    file:
+      path: "/tmp/MyTest/MyFile.txt"
+      state: touch
+    delegate_to: 127.0.0.1
+    run_once: true
+
+
+  - name: Check store_front
+    include_tasks: tasks/StoreFront.yml
+    loop: "{{ servers_storefront }}"
+
+   - name: check ddc
+     include_tasks: - generic.yml
+     loop: "{{ dcc_servers }}"
+
+   - name: check pvs
+     include_tasks: - generic.yml
+     loop: "{{ dcc_servers }}"
+
+
+  - name: read information from file
+    set_fact:
+      file_text: "{{ lookup('file', '/tmp/MyTest/MyFile.txt') }}"
+    run_once: true
+    delegate_to: 127.0.0.1
+
+
+  # Send email using SMTP
+  - name: email information
+    mail:
+      host: smtprelay.energyaustralia.com.au
+      port: 25
+      to: Chris Vickers <john.smith@example.com>
+      subject: "Server status '{{ service_summary }}'"
+      body: '{{ file_text }}'
+    delegate_to: localhost
+    run_once: true
