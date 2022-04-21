@@ -1,0 +1,14 @@
+vars:
+  my_string: This is my string abc abc 
+
+tasks:
+
+  # Set a default value for the summary. Any changes will change it from this. 
+  - name: String is twice
+    debug: msg='There were two abc in the string'
+    when: (vara|regex_findall('abc')|length) == 2
+      
+  # Set a default value for the summary. Any changes will change it from this. 
+  - name: String is not twice
+    debug: msg='There were NOT two abc in the string'
+    when: (vara|regex_findall('abc')|length) != 2
