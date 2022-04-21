@@ -4,7 +4,7 @@
       status_services:
       status_unregistered_hosts:
 
-
+  # Services ------------------------------------------------------------------------------------------------------------------
   - name: Query using powershell
     win_shell: |
       Get-Service -Displayname
@@ -19,7 +19,7 @@
     register: status_of_services
 
 
-  - name: Write detailed service status
+  - name: Write detailed service status to file
     lineinfile:
       path: "/tmp/MyTest/Results.txt"
       line: |
@@ -39,7 +39,7 @@
       status_of_services is search("stopped") or
       status_of_services is search("stopped")
 
-
+  # Unregistered hosts ------------------------------------------------------------------------------------------------------------------
   - name: Check for unregistered hosts
     win_shell: |
       If ( (Get-PSSnapin -Name Citrix.Broker.Admin.* -ErrorAction SilentlyContinue) -eq $null )
@@ -62,19 +62,19 @@
       }
     register: unregistered_hosts_output
 
-  # Write a single summary to the summary file
+  # Write a unregistered hosts to file
   - name: Write summary to file
     lineinfile:
-      path: "/tmp/MyTest/Summary.txt"
+      path: "/tmp/MyTest/Results.txt"
       line: |
-        "Service Status for host '{{ ansible_hostname }}'"
-        "{{ status_of_services.stdout }}"
+        "Unregistered hosts output '{{ ansible_hostname }}'"
+        "{{ unregistered_hosts_output.stdout }}"
         ""
         ""
     insertafter: EOF
     delegate_to: 127.0.0.1
-    when: |
-      "All the powered-on VMs are registered succcessfully!" not in unregistered_hosts_output.stdout  
+    # when: |
+    #  "All the powered-on VMs are registered succcessfully!" not in unregistered_hosts_output.stdout  
   
     # set_facts:
     #  status_summary: "Error found"
@@ -82,7 +82,7 @@
     # when: |
     #  "All the powered-on VMs are registered succcessfully!" not in unregistered_hosts_output.stdout
 
-
+  # Write summary to file if any value is not correct ---------------------------------------------------------------------------------
   - name: Write detailed results to temporary file
     lineinfile:
       path: "/tmp/MyTest/Results.txt"
