@@ -85,11 +85,10 @@
   # Write summary to file if any value is not correct ---------------------------------------------------------------------------------
   - name: Write detailed results to temporary file
     lineinfile:
-      path: "/tmp/MyTest/Results.txt"
-      line: |
-        "Unregistered hosts for '{{ ansible_hostname }}'"
-        "{{ unregistered_hosts_output.stdout }}"
-        ""
-        ""
-      insertafter: EOF
+      path: "/tmp/MyTest/Summary.txt"
+      line: "Error found"
+      # insertafter: EOF
     delegate_to: 127.0.0.1
+    when: |
+     "All the powered-on VMs are registered succcessfully!" not in unregistered_hosts_output.stdout or
+     status_of_services is search("stopped") 
