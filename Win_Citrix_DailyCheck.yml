@@ -35,9 +35,17 @@ tasks:
     run_once: true
 
   # Create a temporary file to store the text information from all tests
-  - name: Creating an empty file
+  - name: Creating an empty file to store the single summary
     file:
-      path: "/tmp/MyTest/MyFile.txt"
+      path: "/tmp/MyTest/Summary.txt"
+      state: touch
+    delegate_to: 127.0.0.1
+    run_once: true
+    
+  # Create a temporary file to store the text information from all tests
+  - name: Creating an empty file to store the query results
+    file:
+      path: "/tmp/MyTest/Results.txt"
       state: touch
     delegate_to: 127.0.0.1
     run_once: true
@@ -61,9 +69,16 @@ tasks:
      when: ansible_hostname in servers_pvs
 
   # Read all the information from the temporary file and copy it into a fact
+  - name: read information from file for 
+    set_fact:
+      file_summary: "{{ lookup('file', '/tmp/MyTest/Summary.txt') }}"
+    run_once: true
+    delegate_to: 127.0.0.1
+
+  # Read all the information from the temporary file and copy it into a fact
   - name: read information from file
     set_fact:
-      file_text: "{{ lookup('file', '/tmp/MyTest/MyFile.txt') }}"
+      file_results: "{{ lookup('file', '/tmp/MyTest/Results.txt') }}"
     run_once: true
     delegate_to: 127.0.0.1
 
@@ -71,16 +86,16 @@ tasks:
   - name: Print version
     debug:
       msg: 
-        - "Service summary: {{ service_summary }}"
-        - "Status: {{ file_text }}"
+        - "Service summary: {{ file_summary }}"
+        - "Status: {{ file_results }}"
 
   # Send email using SMTP
-  - name: email information
-    mail:
-      host: 
-      port: 25
-      to: Chris Vickers <john.smith@example.com>
-      subject: "Server status '{{ service_summary }}'"
-      body: '{{ file_text }}'
-    delegate_to: localhost
-    run_once: true
+  #- name: email information
+  #  mail:
+  #    host: 
+  #    port: 25
+  #    to: Chris Vickers <john.smith@example.com>
+  #    subject: "Server status '{{ service_summary }}'"
+  #    body: '{{ file_text }}'
+  #  delegate_to: localhost
+  #  run_once: true
