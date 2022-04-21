@@ -1,1 +1,51 @@
+---
+  - name: Set facts to empty
+    set_facts:
+      status_services:
+      status_unregistered_hosts:
+
+  # Services ------------------------------------------------------------------------------------------------------------------
+  - name: Query using powershell
+    win_shell: echo 'Test'
+    register: status_of_services
+
+
+  - name: Write detailed service status to file
+    lineinfile:
+      path: "/tmp/MyTest/Results.txt"
+      line: |
+        "Service Status for host '{{ ansible_hostname }}'"
+        "{{ status_of_services.stdout }}"
+        ""
+        ""
+      insertafter: EOF
+    delegate_to: 127.0.0.1
+
+  # Unregistered hosts ------------------------------------------------------------------------------------------------------------------
+  - name: Check for unregistered hosts
+    win_shell: echo 'Test'
+    register: unregistered_hosts_output
+
+  # Write a unregistered hosts to file
+  - name: Write summary to file
+    lineinfile:
+      path: "/tmp/MyTest/Results.txt"
+      line: |
+        "Unregistered hosts output '{{ ansible_hostname }}'"
+        "{{ unregistered_hosts_output.stdout }}"
+        ""
+        ""
+    insertafter: EOF
+    delegate_to: 127.0.0.1
+
+  # Write summary to file if any value is not correct ---------------------------------------------------------------------------------
+  - name: Write detailed results to temporary file
+    lineinfile:
+      path: "/tmp/MyTest/Summary.txt"
+      line: "Error found"
+      # insertafter: EOF
+    delegate_to: 127.0.0.1
+    when: |
+     "All the powered-on VMs are registered succcessfully!" not in unregistered_hosts_output.stdout or
+     status_of_services is search("stopped") 
 
