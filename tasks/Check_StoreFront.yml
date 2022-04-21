@@ -19,9 +19,9 @@
     register: status_of_services
 
 
-  - name: Write status to temporary file
+  - name: Write detailed service status
     lineinfile:
-      path: "/tmp/MyTest/MyFile.txt"
+      path: "/tmp/MyTest/Results.txt"
       line: |
         "Service Status for host '{{ ansible_hostname }}'"
         "{{ status_of_services.stdout }}"
@@ -62,18 +62,30 @@
       }
     register: unregistered_hosts_output
 
-
-  - name: Check for unregistered machines
-    set_facts:
-      status_summary: "Error found"
-    # Change below to set the status values that will flag a problem
-    when: |
-      "All the powered-on VMs are registered succcessfully!" not in unregistered_hosts_output.stdout
-
-
-  - name: Write status to temporary file
+  # Write a single summary to the summary file
+  - name: Write summary to file
     lineinfile:
-      path: "/tmp/MyTest/MyFile.txt"
+      path: "/tmp/MyTest/Summary.txt"
+      line: |
+        "Service Status for host '{{ ansible_hostname }}'"
+        "{{ status_of_services.stdout }}"
+        ""
+        ""
+    insertafter: EOF
+    delegate_to: 127.0.0.1
+    when: |
+      "All the powered-on VMs are registered succcessfully!" not in unregistered_hosts_output.stdout  
+  
+    # set_facts:
+    #  status_summary: "Error found"
+    # Change below to set the status values that will flag a problem
+    # when: |
+    #  "All the powered-on VMs are registered succcessfully!" not in unregistered_hosts_output.stdout
+
+
+  - name: Write detailed results to temporary file
+    lineinfile:
+      path: "/tmp/MyTest/Results.txt"
       line: |
         "Unregistered hosts for '{{ ansible_hostname }}'"
         "{{ unregistered_hosts_output.stdout }}"
