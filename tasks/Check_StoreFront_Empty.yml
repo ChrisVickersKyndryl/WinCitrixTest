@@ -4,7 +4,24 @@
       status_services:
       status_unregistered_hosts:
 
-  # Services ------------------------------------------------------------------------------------------------------------------
+  # Services Expected Running ------------------------------------------------------------------------------------------------------------------
+  - name: Query using powershell
+    win_shell: echo 'Test'
+    register: status_of_services
+
+
+  - name: Write detailed service status to file
+    lineinfile:
+      path: "/tmp/MyTest/Results.txt"
+      line: |
+        "Service Status for host '{{ ansible_hostname }}'"
+        "{{ status_of_services.stdout }}"
+        ""
+        ""
+      insertafter: EOF
+    delegate_to: 127.0.0.1
+    
+  # Services Expected Stopped ------------------------------------------------------------------------------------------------------------------
   - name: Query using powershell
     win_shell: echo 'Test'
     register: status_of_services
