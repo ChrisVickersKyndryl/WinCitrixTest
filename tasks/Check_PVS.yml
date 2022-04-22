@@ -58,7 +58,7 @@
     delegate_to: 127.0.0.1
 
   # Write summary to file if any value is not correct ---------------------------------------------------------------------------------
-  - name: Write detailed results to temporary file
+  - name: Write summary that an error was found if services are stopped in first query, or are not stopped in second
     copy: 
       content: "Error found"
       dest: "/tmp/MyTest/Summary.txt"
