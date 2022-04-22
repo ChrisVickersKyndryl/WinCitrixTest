@@ -63,10 +63,12 @@
       line: "Error found"
       # insertafter: EOF
     delegate_to: 127.0.0.1
-    when: |
-      status_of_services_running is search("stopped")
-      or
-      "All the powered-on VMs are registered succcessfully!" not in status_unregistered_hosts.stdout
-      or
-      ((status_of_services_stopped | regex_findall('stopped') | length) != 2)
+    when: (status_of_services_stopped|regex_findall('stopped')|length) != 2
+    
+     #|
+     # status_of_services_running is search("stopped")
+     # or
+     # "All the powered-on VMs are registered succcessfully!" not in status_unregistered_hosts.stdout
+     # or
+     # ((status_of_services_stopped | regex_findall('stopped') | length) != 2)
 
