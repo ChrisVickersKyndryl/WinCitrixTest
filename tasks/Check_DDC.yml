@@ -41,7 +41,7 @@
     delegate_to: 127.0.0.1
 
   # Write summary to file if any value is not correct ---------------------------------------------------------------------------------
-  - name: Write detailed results to temporary file
+  - name: Write summary to file if error is found
     copy: 
       content: "Error found"
       dest: "/tmp/MyTest/Summary.txt"
