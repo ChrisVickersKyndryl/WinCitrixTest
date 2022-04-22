@@ -18,6 +18,7 @@
 - name: Hello World!
   hosts: all
 
+  # variables of servers, to prevent tasks failing if they are not specified
   vars:
     servers_storefront: []
     servers_dcc: []
