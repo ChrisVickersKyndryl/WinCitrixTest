@@ -52,10 +52,13 @@
 
   # Write summary to file if any value is not correct ---------------------------------------------------------------------------------
   - name: Write detailed results to temporary file
-    lineinfile:
-      path: "/tmp/MyTest/Summary.txt"
-      line: "Error found"
-      # insertafter: EOF
+    copy: 
+      content: "Error found"
+      dest: "/tmp/MyTest/Summary.txt"
+    #lineinfile:
+    #  path: "/tmp/MyTest/Summary.txt"
+    #  line: "Error found"
+    #  insertafter: EOF
     delegate_to: 127.0.0.1
     when: |
       status_of_services_running is search("stopped")
