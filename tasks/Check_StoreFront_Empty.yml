@@ -53,7 +53,7 @@
         "{{ status_unregistered_hosts.stdout }}"
         ""
         ""
-    insertafter: EOF
+      insertafter: EOF
     delegate_to: 127.0.0.1
 
   # Write summary to file if any value is not correct ---------------------------------------------------------------------------------
