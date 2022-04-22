@@ -13,7 +13,6 @@
       "Citrix Telemetry Service"
     register: status_of_services_running
 
-
   - name: Write Powershell response to file
     lineinfile:
       path: "/tmp/MyTest/Results.txt"
