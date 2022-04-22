@@ -10,7 +10,7 @@
     # Set a default value for the summary. Any changes will change it from this. 
     - name: Interlace variable
       debug:
-        msg: '{{ destination_email }}'
+        msg: "{{ destination_email }}"
         
     # Set a default value for the summary. Any changes will change it from this. 
     - name: Interlace variable
