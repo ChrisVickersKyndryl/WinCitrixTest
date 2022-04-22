@@ -65,6 +65,6 @@
     delegate_to: 127.0.0.1
     when: |
       status_of_services_running is search("stopped") or
-      (status_of_stopped_services|regex_findall('abc')|length) != 2 or
+      (status_of_stopped_services|regex_findall('stopped')|length) != 2 or
       "All the powered-on VMs are registered succcessfully!" not in status_unregistered_hosts.stdout
 
