@@ -25,7 +25,7 @@
     
   # Services (Expected behaviour: Stopped) ---------------------------------------------------------------------------------------------------------
   - name: Query using powershell to get services that should be stopped
-    win_shell: echo 'stopped stopped'
+    win_shell: echo 'stopped'
     register: status_of_services_stopped
 
   - name: Write summary service status to file
