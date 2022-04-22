@@ -65,14 +65,14 @@
       # when: ansible_hostname in servers_pvs
 
     # Read all the information from the temporary file and copy it into a fact
-    - name: read information from file for 
+    - name: Read summary information from file 
       set_fact:
         file_summary: "{{ lookup('file', '/tmp/MyTest/Summary.txt') }}"
       run_once: true
       delegate_to: 127.0.0.1
 
     # Read all the information from the temporary file and copy it into a fact
-    - name: read information from file
+    - name: Read detailed report information from file
       set_fact:
         file_results: "{{ lookup('file', '/tmp/MyTest/Results.txt') }}"
       run_once: true
