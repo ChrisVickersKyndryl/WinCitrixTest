@@ -1,10 +1,10 @@
 ---
   
-  #- name: Set facts to empty
-  #  set_facts:
-  #    status_of_services_running:
-  #    status_of_services_stopped:
-  #    status_unregistered_hosts:
+#  - name: Set facts to empty
+#    set_facts:
+#      status_of_services_running:
+#      status_of_services_stopped:
+#      status_unregistered_hosts:
 
   # Services Expected (Expected behaviour: Running) ------------------------------------------------------------------------------------------------
   - name: Query using powershell
