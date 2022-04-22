@@ -15,7 +15,7 @@
 # Create 3 server lists. These can be overridden in the template variables
 
 ---
-- name: Hello World!
+- name: Citrix daily health check
   hosts: all
 
   # variables of servers, to prevent tasks failing if they are not specified
