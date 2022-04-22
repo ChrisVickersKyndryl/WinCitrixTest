@@ -7,7 +7,7 @@
 #      status_unregistered_hosts:
 
   # Services Expected (Expected behaviour: Running) ------------------------------------------------------------------------------------------------
-  - name: Query using powershell
+  - name: Query using powershell to get services that should be running
     win_shell: echo 'Test'
     register: status_of_services_running
 
