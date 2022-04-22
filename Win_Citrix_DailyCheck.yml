@@ -18,10 +18,10 @@
 - name: Hello World!
   hosts: all
 
-  #vars:
-  #  servers_storefront: []
-  #  servers_dcc: []
-  #  servers_pvs: []
+  vars:
+    servers_storefront: []
+    servers_dcc: []
+    servers_pvs: []
 
   tasks:
       
