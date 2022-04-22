@@ -45,28 +45,6 @@
       insertafter: EOF
     delegate_to: 127.0.0.1
 
-  # Unregistered hosts ------------------------------------------------------------------------------------------------------------------
-  - name: Check for unregistered hosts
-    win_shell: |
-      If ( (Get-PSSnapin -Name Citrix.Broker.Admin.* -ErrorAction SilentlyContinue) -eq $null )
-      {
-          Try {
-              Add-PSSnapin Citrix.Broker.Admin.* | Out-Null
-          } Catch {
-              Write-Host "Unable to load Citrix Snapin. It is not possible to continue."
-              Exit 1
-          }
-      }
-      $VMs = Get-BrokerDesktop -RegistrationState Unregistered -PowerState On
-      If ($VMs) {
-          Write-Host "Powered-on Unregistered VMs:"
-          ForEach ($vm in $VMs) {
-              $vm.MachineName
-          }
-      } Else {
-          Write-Host "All the powered-on VMs are registered succcessfully!"
-    register: status_unregistered_hosts
-
   # Write a unregistered hosts to file
   - name: Write summary to file
     lineinfile:
@@ -89,5 +67,3 @@
       status_of_services_running is search("stopped")
       or
       ((status_of_services_stopped.stdout|regex_findall('stopped')|length) != 2)
-      or
-      "All the powered-on VMs are registered succcessfully!" not in status_unregistered_hosts.stdout
