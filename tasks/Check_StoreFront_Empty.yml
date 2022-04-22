@@ -1,16 +1,16 @@
 ---
   - name: Set facts to empty
-    set_facts:
-      status_services:
-      status_unregistered_hosts:
+    # set_facts:
+    #   status_services:
+    #   status_unregistered_hosts:
 
-  # Services Expected Running ------------------------------------------------------------------------------------------------------------------
+  # Services Expected (Expected behaviour: Running) ------------------------------------------------------------------------------------------------------------------
   - name: Query using powershell
     win_shell: echo 'Test'
     register: status_of_services
 
 
-  - name: Write detailed service status to file
+  - name: Write Powershell response to file
     lineinfile:
       path: "/tmp/MyTest/Results.txt"
       line: |
@@ -21,21 +21,17 @@
       insertafter: EOF
     delegate_to: 127.0.0.1
     
-  # Services Expected Stopped ------------------------------------------------------------------------------------------------------------------
-  - name: Query using powershell
+  # Services (Expected behaviour: Stopped) ------------------------------------------------------------------------------------------------------------------
+  - name: Query using powershell to get services that should be stopped
     win_shell: echo 'Test'
-    register: status_of_services
+    register: status_of_stopped_services
 
-
-  - name: Write detailed service status to file
+  - name: Write summary service status to file
     lineinfile:
-      path: "/tmp/MyTest/Results.txt"
-      line: |
-        "Service Status for host '{{ ansible_hostname }}'"
-        "{{ status_of_services.stdout }}"
-        ""
-        ""
-      insertafter: EOF
+      path: "/tmp/MyTest/Summary.txt"
+      line: "Error found"
+      # insertafter: EOF
+    when: (status_of_stopped_services|regex_findall('abc')|length) != 2
     delegate_to: 127.0.0.1
 
   # Unregistered hosts ------------------------------------------------------------------------------------------------------------------
@@ -64,5 +60,6 @@
     delegate_to: 127.0.0.1
     when: |
      "All the powered-on VMs are registered succcessfully!" not in unregistered_hosts_output.stdout or
-     status_of_services is search("stopped") 
+     status_of_services is search("stopped") or
+     (status_of_stopped_services|regex_findall('abc')|length) != 2
 
