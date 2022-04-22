@@ -6,6 +6,16 @@
     my_string: This is my string abc abc 
 
   tasks:
+  
+    # Set a default value for the summary. Any changes will change it from this. 
+    - name: Interlace variable
+      debug:
+        msg: '{{ destination_email }}'
+        
+    # Set a default value for the summary. Any changes will change it from this. 
+    - name: Interlace variable
+      debug:
+        msg: "{{ destination_name }} <{{ destination_email }}>"
 
     # Set a default value for the summary. Any changes will change it from this. 
     - name: String is twice
