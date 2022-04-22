@@ -5,12 +5,11 @@
     win_shell: |
       Get-Service -Displayname
 
-      "Citrix Configuration Replication",
-      "Citrix Credential Wallet",
-      "Citrix Default Domain Services",
-      "Citrix Peer Resolution Service",
-      "Citrix Service Monitor",
-      "Citrix Subscriptions Store",
+      "Citrix Diagnostic Facility COM Server",
+      "Citrix PVS Soap Server",
+      "Citrix PVS Stream Service",
+      "Citrix PVS TFTP Service",
+      "Citrix PVS Two-Stage Boot Service",
       "Citrix Telemetry Service"
     register: status_of_services_running
 
@@ -28,7 +27,11 @@
     
   # Services (Expected behaviour: Stopped) ---------------------------------------------------------------------------------------------------------
   - name: Query using powershell to get services that should be stopped
-    win_shell: echo 'stopped'
+    win_shell: |
+      Get-Service -Displayname
+
+      "Citrix PVS BOOTP Service",
+      "Citrix PVS PXE Service"
     register: status_of_services_stopped
 
   - name: Write summary service status to file
