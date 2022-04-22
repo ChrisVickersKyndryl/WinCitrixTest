@@ -14,80 +14,87 @@
 
 # Create 3 server lists. These can be overridden in the template variables
 
-vars:
-  servers_storefront: []
-  servers_dcc: []
-  servers_pvs: []
+---
+- name: Hello World!
+  hosts: all
 
-tasks:
+  vars:
+    my_string: This is my string abc abc 
 
-  # Set a default value for the summary. Any changes will change it from this. 
-  - name: Set status
-    set_facts:
-      service_summary: "All servers working correctly"
+  vars:
+    servers_storefront: []
+    servers_dcc: []
+    servers_pvs: []
+
+  tasks:
+
+    # Set a default value for the summary. Any changes will change it from this. 
+    - name: Set status
+      set_facts:
+        service_summary: "All servers working correctly"
       
-  # Create a temp folder to store all the information
-  - name: Create temp folder
-    file:
-      path: /tmp/MyTest
-      state: directory
-    delegate_to: 127.0.0.1
-    run_once: true
+    # Create a temp folder to store all the information
+    - name: Create temp folder
+      file:
+        path: /tmp/MyTest
+        state: directory
+      delegate_to: 127.0.0.1
+      run_once: true
 
-  # Create a temporary file to store the text information from all tests
-  - name: Creating an empty file to store the single summary
-    file:
-      path: "/tmp/MyTest/Summary.txt"
-      state: touch
-    delegate_to: 127.0.0.1
-    run_once: true
+    # Create a temporary file to store the text information from all tests
+    - name: Creating an empty file to store the single summary
+      file:
+        path: "/tmp/MyTest/Summary.txt"
+        state: touch
+      delegate_to: 127.0.0.1
+      run_once: true
     
-  # Create a temporary file to store the text information from all tests
-  - name: Creating an empty file to store the query results
-    file:
-      path: "/tmp/MyTest/Results.txt"
-      state: touch
-    delegate_to: 127.0.0.1
-    run_once: true
+    # Create a temporary file to store the text information from all tests
+    - name: Creating an empty file to store the query results
+      file:
+        path: "/tmp/MyTest/Results.txt"
+        state: touch
+      delegate_to: 127.0.0.1
+      run_once: true
 
-  # Carryout custom checks only on servers in the storefront list
-  - name: Check store_front
-    include_tasks: tasks/Check_StoreFront.yml
-    # loop: "{{ servers_storefront }}"
-    when: ansible_hostname in servers_storefront
+    # Carryout custom checks only on servers in the storefront list
+    - name: Check store_front
+      include_tasks: tasks/Check_StoreFront.yml
+      # loop: "{{ servers_storefront }}"
+      when: ansible_hostname in servers_storefront
 
-   # Carryout custom checks only on servers in the DDC list
-   - name: check ddc
-     include_tasks: tasks/Check_DDC.yml
-     # loop: "{{ servers_dcc }}"
-     when: ansible_hostname in servers_ddc
+     # Carryout custom checks only on servers in the DDC list
+     - name: check ddc
+       include_tasks: tasks/Check_DDC.yml
+       # loop: "{{ servers_dcc }}"
+       when: ansible_hostname in servers_ddc
 
-   # Carryout custom checks only on servers in the storefront list
-   - name: check pvs
-     include_tasks: tasks/Check_PVC.yml
-     # loop: "{{ servers_pvs }}"
-     when: ansible_hostname in servers_pvs
+     # Carryout custom checks only on servers in the storefront list
+     - name: check pvs
+       include_tasks: tasks/Check_PVC.yml
+       # loop: "{{ servers_pvs }}"
+       when: ansible_hostname in servers_pvs
 
-  # Read all the information from the temporary file and copy it into a fact
-  - name: read information from file for 
-    set_fact:
-      file_summary: "{{ lookup('file', '/tmp/MyTest/Summary.txt') }}"
-    run_once: true
-    delegate_to: 127.0.0.1
+    # Read all the information from the temporary file and copy it into a fact
+    - name: read information from file for 
+      set_fact:
+        file_summary: "{{ lookup('file', '/tmp/MyTest/Summary.txt') }}"
+      run_once: true
+      delegate_to: 127.0.0.1
 
-  # Read all the information from the temporary file and copy it into a fact
-  - name: read information from file
-    set_fact:
-      file_results: "{{ lookup('file', '/tmp/MyTest/Results.txt') }}"
-    run_once: true
-    delegate_to: 127.0.0.1
+    # Read all the information from the temporary file and copy it into a fact
+    - name: read information from file
+      set_fact:
+        file_results: "{{ lookup('file', '/tmp/MyTest/Results.txt') }}"
+      run_once: true
+      delegate_to: 127.0.0.1
 
-  # Print output to Ansible tower
-  - name: Print version
-    debug:
-      msg: 
-        - "Service summary: {{ file_summary }}"
-        - "Status: {{ file_results }}"
+    # Print output to Ansible tower
+    - name: Print version
+      debug:
+        msg: 
+          - "Service summary: {{ file_summary }}"
+          - "Status: {{ file_results }}"
 
   # Send email using SMTP
   #- name: email information
