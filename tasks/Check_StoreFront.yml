@@ -1,11 +1,7 @@
 ---
-  - name: Set facts to empty
-    set_facts:
-      status_services:
-      status_unregistered_hosts:
 
-  # Services ------------------------------------------------------------------------------------------------------------------
-  - name: Query using powershell
+  # Services Expected (Expected behaviour: Running) ------------------------------------------------------------------------------------------------
+  - name: Query using powershell to get services that should be running
     win_shell: |
       Get-Service -Displayname
 
@@ -16,28 +12,35 @@
       "Citrix Service Monitor",
       "Citrix Subscriptions Store",
       "Citrix Telemetry Service"
-    register: status_of_services
+    register: status_of_services_running
 
 
-  - name: Write detailed service status to file
+  - name: Write Powershell response to file
     lineinfile:
       path: "/tmp/MyTest/Results.txt"
       line: |
         "Service Status for host '{{ ansible_hostname }}'"
-        "{{ status_of_services.stdout }}"
+        "{{ status_of_services_running.stdout }}"
         ""
         ""
       insertafter: EOF
     delegate_to: 127.0.0.1
+    
+  # Services (Expected behaviour: Stopped) ---------------------------------------------------------------------------------------------------------
+  - name: Query using powershell to get services that should be stopped
+    win_shell: echo 'stopped'
+    register: status_of_services_stopped
 
-
-  - name: Check for stopped services
-    set_facts:
-      status_summary: "Error found"
-    # Change below to set the status values that will flag a problem
-    when: |
-      status_of_services is search("stopped") or
-      status_of_services is search("stopped")
+  - name: Write summary service status to file
+    lineinfile:
+      path: "/tmp/MyTest/Results.txt"
+      line: |
+        "Service Status for host '{{ ansible_hostname }}'"
+        "{{ status_of_services_running.stdout }}"
+        ""
+        ""
+      insertafter: EOF
+    delegate_to: 127.0.0.1
 
   # Unregistered hosts ------------------------------------------------------------------------------------------------------------------
   - name: Check for unregistered hosts
@@ -59,8 +62,7 @@
           }
       } Else {
           Write-Host "All the powered-on VMs are registered succcessfully!"
-      }
-    register: unregistered_hosts_output
+    register: status_unregistered_hosts
 
   # Write a unregistered hosts to file
   - name: Write summary to file
@@ -68,27 +70,21 @@
       path: "/tmp/MyTest/Results.txt"
       line: |
         "Unregistered hosts output '{{ ansible_hostname }}'"
-        "{{ unregistered_hosts_output.stdout }}"
+        "{{ status_unregistered_hosts.stdout }}"
         ""
         ""
-    insertafter: EOF
+      insertafter: EOF
     delegate_to: 127.0.0.1
-    # when: |
-    #  "All the powered-on VMs are registered succcessfully!" not in unregistered_hosts_output.stdout  
-  
-    # set_facts:
-    #  status_summary: "Error found"
-    # Change below to set the status values that will flag a problem
-    # when: |
-    #  "All the powered-on VMs are registered succcessfully!" not in unregistered_hosts_output.stdout
 
   # Write summary to file if any value is not correct ---------------------------------------------------------------------------------
   - name: Write detailed results to temporary file
-    lineinfile:
-      path: "/tmp/MyTest/Summary.txt"
-      line: "Error found"
-      # insertafter: EOF
+    copy: 
+      content: "Error found"
+      dest: "/tmp/MyTest/Summary.txt"
     delegate_to: 127.0.0.1
     when: |
-     "All the powered-on VMs are registered succcessfully!" not in unregistered_hosts_output.stdout or
-     status_of_services is search("stopped") 
+      status_of_services_running is search("stopped")
+      or
+      ((status_of_services_stopped.stdout|regex_findall('stopped')|length) != 2)
+      or
+      "All the powered-on VMs are registered succcessfully!" not in status_unregistered_hosts.stdout
