@@ -19,19 +19,11 @@
   hosts: all
 
   vars:
-    my_string: This is my string abc abc 
-
-  vars:
     servers_storefront: []
     servers_dcc: []
     servers_pvs: []
 
   tasks:
-
-    # Set a default value for the summary. Any changes will change it from this. 
-    - name: Set status
-      set_facts:
-        service_summary: "All servers working correctly"
       
     # Create a temp folder to store all the information
     - name: Create temp folder
