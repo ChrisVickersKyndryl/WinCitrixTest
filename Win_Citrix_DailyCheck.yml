@@ -51,8 +51,18 @@
 
     # Carryout custom checks only on servers in the storefront list
     - name: Check store_front
-      include_tasks: tasks/Check_StoreFront_Empty.yml
+      include_tasks: tasks/Check_StoreFront.yml
       # when: ansible_hostname in servers_storefront
+      
+    # Carryout custom checks only on servers in the dcc list
+    - name: Check store_front
+      include_tasks: tasks/Check_DCC.yml
+      # when: ansible_hostname in servers_dcc
+      
+    # Carryout custom checks only on servers in the pvs list
+    - name: Check store_front
+      include_tasks: tasks/Check_PVS.yml
+      # when: ansible_hostname in servers_pvs
 
     # Read all the information from the temporary file and copy it into a fact
     - name: read information from file for 
