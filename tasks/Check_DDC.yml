@@ -1,1 +1,50 @@
 
+---
+
+  # Services Expected (Expected behaviour: Running) ------------------------------------------------------------------------------------------------
+  - name: Query using powershell to get services that should be running
+    win_shell: |
+      Get-Service -Displayname
+
+      "Citrix Diagnostic Facility COM Server",
+      "Citrix AD Identity Service",
+      "Citrix Analytics",
+      "Citrix App Library",
+      "Citrix Broker Service",
+      "Citrix Config Synchronizer Service",
+      "Citrix Configuration Logging Service",
+      "Citrix Configuration Service",
+      "Citrix Delegated Administration Service",
+      "Citrix Environment Test Service",
+      "Citrix High Availability Service",
+      "Citrix Host Service",
+      "Citrix Machine Creation Service",
+      "Citrix Monitor Service",
+      "Citrix Orchestration Service",
+      "Citrix Remote Broker Provider",
+      "Citrix Storefront Privileged Administration Service",
+      "Citrix Storefront Service",
+      "Citrix Telemetry Service",
+      "Citrix Trust Service"
+    register: status_of_services_running
+
+
+  - name: Write Powershell response to file
+    lineinfile:
+      path: "/tmp/MyTest/Results.txt"
+      line: |
+        "Service Status for host '{{ ansible_hostname }}'"
+        "{{ status_of_services_running.stdout }}"
+        ""
+        ""
+      insertafter: EOF
+    delegate_to: 127.0.0.1
+
+  # Write summary to file if any value is not correct ---------------------------------------------------------------------------------
+  - name: Write detailed results to temporary file
+    copy: 
+      content: "Error found"
+      dest: "/tmp/MyTest/Summary.txt"
+    delegate_to: 127.0.0.1
+    when: |
+      status_of_services_running is search("stopped")
