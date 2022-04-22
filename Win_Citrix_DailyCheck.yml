@@ -74,6 +74,7 @@
         msg: 
           - "Service summary: {{ file_summary }}"
           - "Status: {{ file_results }}"
+      run_once: true
 
   # Send email using SMTP
   #- name: email information
