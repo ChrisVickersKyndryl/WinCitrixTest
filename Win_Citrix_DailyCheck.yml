@@ -35,9 +35,9 @@
 
     # Create a temporary file to store the text information from all tests
     - name: Creating an empty file to store the single summary
-      file:
-        path: "/tmp/MyTest/Summary.txt"
-        state: touch
+      copy:
+        dest: "/tmp/MyTest/Summary.txt"
+        content: All okay
       delegate_to: 127.0.0.1
       run_once: true
     
