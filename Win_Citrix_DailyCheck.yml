@@ -59,7 +59,7 @@
 
     # Carryout custom checks only on servers in the storefront list
     - name: Check store_front
-      include_tasks: tasks/Check_StoreFront.yml
+      include_tasks: tasks/Check_StoreFront_Empty.yml
       # loop: "{{ servers_storefront }}"
       when: ansible_hostname in servers_storefront
 
